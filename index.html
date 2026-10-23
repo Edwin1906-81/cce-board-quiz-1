@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Critical Care Echo Quiz | Pulmonary POCUS</title>
+<style>
+:root{--hdr:#1f3a64;--hdr2:#2c4f85;--bg:#eef1f5;--card:#fff;--line:#d5dbe3;--text:#1b2430;--muted:#5f6c7b;
+  --ok:#1f8a4c;--okbg:#e6f4ec;--bad:#c62f2f;--badbg:#fbeaea;--sel:#e8effa;--accent:#2c6bc9;--flag:#e08a00}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;font-size:16px}
+button{font:inherit;cursor:pointer}
+button:disabled{opacity:.45;cursor:default}
+a{color:var(--accent)}
+
+/* ---------- start / results pages ---------- */
+.page{max-width:900px;margin:0 auto;padding:20px 16px 40px}
+.brand{background:var(--hdr);color:#fff;padding:14px 18px;border-radius:10px 10px 0 0}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.brand h1{margin:0;font-size:1.35em}
+.logo{display:inline-flex;background:#fff;border-radius:8px;padding:4px 8px;flex:0 0 auto;line-height:0}
+.logo img{height:44px;width:auto;display:block}
+.top .logo{padding:3px 6px;border-radius:6px}
+.top .logo img{height:30px}
+@media (max-width:760px){.logo img{height:34px}.top .logo img{height:24px}.top{padding:6px}.top .l,.top .r{gap:6px}.ic{padding:6px 9px}.timer{font-size:.85em;padding:4px 6px}.flagbtn{padding:6px 7px}}
+.brand p{margin:4px 0 0;opacity:.85;font-size:.9em}
+.card{background:var(--card);border:1px solid var(--line);border-radius:0 0 10px 10px;padding:20px;margin-bottom:18px}
+.card.solo{border-radius:10px}
+.card h2{margin:0 0 12px;font-size:1.1em}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.field label{display:block;font-size:.85em;color:var(--muted);margin-bottom:4px}
+.field input{width:100%;max-width:360px;padding:10px;border:1px solid var(--line);border-radius:6px;font:inherit}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+.mode{border:2px solid var(--line);border-radius:8px;padding:12px 14px;background:#fff;text-align:left}
+.mode b{display:block;margin-bottom:4px}
+.mode span{font-size:.88em;color:var(--muted)}
+.mode.on{border-color:var(--accent);background:var(--sel)}
+.btn{background:var(--accent);color:#fff;border:0;border-radius:6px;padding:11px 20px;font-weight:700}
+.btn.ghost{background:#fff;color:var(--accent);border:1.5px solid var(--accent)}
+.btn.sm{padding:6px 12px;font-size:.85em}
+.btn.red{background:var(--bad)}
+table{width:100%;border-collapse:collapse;font-size:.9em}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:600;font-size:.82em;text-transform:uppercase;letter-spacing:.03em}
+tr.click{cursor:pointer}
+tr.click:hover td{background:#f6f8fb}
+.pill{display:inline-block;padding:2px 8px;border-radius:12px;font-size:.78em;font-weight:700;color:#fff}
+.pill.ok{background:var(--ok)}.pill.bad{background:var(--bad)}.pill.om{background:#8a96a6}
+.scorebox{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.big{font-size:3em;font-weight:800;color:var(--hdr);line-height:1}
+.stats{display:flex;gap:10px;flex-wrap:wrap}
+.stat{background:var(--bg);border-radius:8px;padding:10px 14px;min-width:96px}
+.stat b{display:block;font-size:1.3em}
+.stat span{font-size:.8em;color:var(--muted)}
+.meter{height:10px;background:var(--bg);border-radius:6px;overflow:hidden;display:flex;margin:14px 0 4px}
+.meter i{display:block;height:100%}
+.muted{color:var(--muted);font-size:.88em}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.scroll{overflow-x:auto}
+
+/* ---------- exam interface ---------- */
+.shell{display:flex;flex-direction:column;height:100vh}
+.top{background:var(--hdr);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:6px 10px;gap:8px;flex:0 0 auto}
+.top .l,.top .r{display:flex;align-items:center;gap:10px;flex:1}
+.top .r{justify-content:flex-end}
+.top .c{display:flex;gap:4px}
+.item{font-weight:700;font-size:.95em;white-space:nowrap}
+.qid{font-size:.75em;opacity:.8;white-space:nowrap}
+.ic{background:transparent;border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:6px;padding:6px 12px;font-size:1em;line-height:1}
+.ic:hover:not(:disabled){background:var(--hdr2)}
+.flagbtn{background:transparent;border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:6px;padding:6px 10px;font-size:.85em;white-space:nowrap}
+.flagbtn.on{background:var(--flag);border-color:var(--flag)}
+.timer{font-family:"Courier New",monospace;font-weight:700;background:rgba(0,0,0,.2);padding:5px 10px;border-radius:6px;white-space:nowrap}
+.timer.low{background:var(--bad)}
+.body{flex:1;display:flex;min-height:0}
+.nav{width:76px;background:#fff;border-right:1px solid var(--line);overflow-y:auto;flex:0 0 auto}
+.nav button{display:flex;align-items:center;justify-content:center;gap:4px;width:100%;border:0;border-bottom:1px solid #edf0f4;background:#fff;padding:9px 4px;font-size:.88em;position:relative}
+.nav button.cur{background:var(--sel);font-weight:700;box-shadow:inset 4px 0 0 var(--accent)}
+.nav button.ans:not(.rv)::after{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent);position:absolute;right:8px}
+.nav button.rv.ok{color:var(--ok)}
+.nav button.rv.bad{color:var(--bad)}
+.nav .fl{color:var(--flag);font-size:.85em}
+.main{flex:1;overflow-y:auto;padding:22px 26px 40px;background:#fff}
+.qwrap{max-width:860px}
+.stem{line-height:1.6;margin:0 0 16px;font-size:1.02em}
+.media{margin:0 0 18px;display:grid;gap:10px;max-width:640px}
+.media img,.media video{width:100%;border:1px solid var(--line);border-radius:4px;background:#000;display:block}
+.media .frame{position:relative;padding-top:56.25%}
+.media iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.choices{border:1px solid var(--line);border-radius:4px;max-width:640px;margin-bottom:16px}
+.ch{display:flex;align-items:flex-start;gap:10px;width:100%;text-align:left;background:#fff;border:0;border-bottom:1px solid #edf0f4;padding:11px 12px;line-height:1.45}
+.ch:last-child{border-bottom:0}
+.ch:hover:not(:disabled){background:#f6f8fb}
+.ch:disabled{cursor:default;color:inherit;opacity:1}
+.radio{flex:0 0 18px;height:18px;border:2px solid #8a96a6;border-radius:50%;margin-top:2px;position:relative}
+.ch.sel .radio{border-color:var(--accent)}
+.ch.sel .radio::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--accent)}
+.ch .mk{flex:0 0 20px;font-weight:800;text-align:center}
+.ch.ok{background:var(--okbg)} .ch.ok .mk{color:var(--ok)}
+.ch.bad{background:var(--badbg)} .ch.bad .mk{color:var(--bad)}
+.ch.strike .txt{text-decoration:line-through;color:#9aa5b3}
+.hint{font-size:.8em;color:var(--muted);margin:-8px 0 16px}
+.exp{border-top:3px solid var(--hdr);padding-top:16px;margin-top:8px}
+.verdict{font-weight:700;font-size:1.05em;margin-bottom:10px}
+.verdict.ok{color:var(--ok)}.verdict.bad{color:var(--bad)}.verdict.om{color:var(--muted)}
+.exp h3{margin:0 0 8px;font-size:1em;color:var(--hdr)}
+.exp p{line-height:1.6;margin:0 0 10px}
+.obj{background:#f2f6fc;border-left:4px solid var(--hdr);padding:10px 14px;margin:14px 0}
+.obj b{display:block;color:var(--hdr);font-size:.82em;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.refs{font-size:.8em;color:var(--muted)}
+.bot{background:var(--hdr);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;gap:8px;flex:0 0 auto}
+.bot .lab{font-size:.85em;opacity:.85}
+.toast{position:fixed;left:50%;bottom:70px;transform:translateX(-50%);background:#222;color:#fff;padding:10px 16px;border-radius:6px;font-size:.9em;z-index:9}
+.modalbg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:10;padding:16px}
+.modal{background:#fff;border-radius:10px;padding:20px;max-width:380px;width:100%}
+.modal h3{margin:0 0 8px}
+.modal .actions{justify-content:flex-end}
+
+@media (max-width:760px){
+  .nav{position:absolute;top:48px;bottom:48px;left:0;z-index:5;box-shadow:2px 0 8px rgba(0,0,0,.15);display:none}
+  .nav.open{display:block}
+  .main{padding:16px 14px 30px}
+  .qid{display:none}
+  .modes{grid-template-columns:1fr}
+  .hidesm{display:none}
+}
+@media (min-width:761px){#navbtn{display:none}}
+@media print{
+  body{background:#fff}
+  .noprint{display:none!important}
+  .card{border:0;padding:0}
+  .page{padding:0}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   QUIZ CONTENT: edit only this block to change questions.
+   answer = letter of the correct choice ("A", "B", ...).
+   image / video = optional URL (image file, .mp4, YouTube, or Vimeo).
+   ===================================================================== */
+const QUIZ = {
+  id: "cc-echo-1",
+  title: "Critical Care Echo Quiz",
+  subtitle: "Pulmonary POCUS | Critical Care Echocardiography Question Bank",
+  secondsPerQuestion: 90,
+  logo: "https://images.squarespace-cdn.com/content/v1/63013e6bdeceb945f6ef2c81/fa4452e4-b6ce-4a39-8305-3451556f8cf3/Pulmanary+Procus+Design+Final.jpg?format=500w",
+  logoLink: "https://www.pulmonarypocus.com",
+  questions: [
+    {
+      id: "CCE-001", topic: "LVOT obstruction",
+      stem: "A patient with hypertrophic obstructive cardiomyopathy undergoes transthoracic echocardiography. What does the continuous wave Doppler profile across the left ventricular outflow tract (LVOT) typically show?",
+      choices: [
+        "A symmetric, parabolic curve with a mid-systolic peak",
+        "An asymmetric, dagger-shaped curve with a late-systolic peak",
+        "A low-velocity, rounded curve",
+        "A double-peaked systolic pulse"
+      ],
+      answer: "B",
+      explanation: [
+        "In dynamic LVOT obstruction, the outflow tract narrows progressively as the ventricle empties and systolic anterior motion (SAM) of the mitral valve worsens. Velocity therefore accelerates late in systole, producing a concave, late-peaking \"dagger\" or \"ski slope\" profile.",
+        "A fixed obstruction such as valvular aortic stenosis produces a symmetric, rounded profile that peaks earlier (choice A). A low-velocity rounded curve (C) suggests no significant obstruction, and a double-peaked pulse (D) describes a bisferiens arterial pulse rather than an LVOT Doppler envelope."
+      ],
+      objective: "A late-peaking, dagger-shaped CW Doppler envelope indicates dynamic LVOT obstruction. A symmetric, mid-systolic peak suggests fixed obstruction such as aortic stenosis.",
+      refs: "ASE/EACVI recommendations on hypertrophic cardiomyopathy imaging."
+    },
+    {
+      id: "CCE-002", topic: "LV systolic function",
+      stem: "According to ASE chamber quantification recommendations, which two-dimensional method is recommended for calculating left ventricular ejection fraction when 3D echocardiography is not available?",
+      choices: [
+        "M-mode Teichholz method",
+        "2D biplane method of disks (modified Simpson's rule)",
+        "Visual estimation (\"eyeballing\")",
+        "Fractional shortening"
+      ],
+      answer: "B",
+      explanation: [
+        "The biplane method of disks traces the endocardial border in the apical 4-chamber and 2-chamber views at end-diastole and end-systole, then sums a stack of elliptical disks to calculate volumes. It makes fewer geometric assumptions than linear methods and is the recommended 2D technique.",
+        "Teichholz and fractional shortening extrapolate a single basal dimension to the whole ventricle and become unreliable with regional wall motion abnormalities or abnormal geometry. Visual estimation is useful at the bedside but is not the recommended quantitative standard."
+      ],
+      objective: "Biplane method of disks (modified Simpson's) is the recommended 2D method for LVEF. Linear methods should not be used to calculate EF.",
+      refs: "Lang RM, et al. Recommendations for cardiac chamber quantification. J Am Soc Echocardiogr. 2015."
+    },
+    {
+      id: "CCE-003", topic: "Stroke volume",
+      stem: "A patient in septic shock has an LVOT diameter of 2.0 cm and a pulsed wave Doppler LVOT velocity time integral (VTI) of 25 cm. What is the calculated stroke volume?",
+      video: "https://youtu.be/Yq31rO82Ad8",
+      choices: ["50 mL", "68 mL", "78.5 mL", "100 mL"],
+      answer: "C",
+      explanation: [
+        "Stroke volume = LVOT cross-sectional area x LVOT VTI. Cross-sectional area = π x (D/2)² = 3.14 x (1.0 cm)² = 3.14 cm². Stroke volume = 3.14 cm² x 25 cm = 78.5 mL.",
+        "A common error is squaring the full diameter without the π/4 factor (2.0² x 25 = 100 mL). Because the radius is squared, small errors in the diameter measurement produce large errors in stroke volume."
+      ],
+      objective: "SV = 0.785 x D² x VTI. With a 2.0 cm LVOT, each 1 cm of VTI equals about 3.14 mL of stroke volume.",
+      refs: "ASE recommendations for quantification of Doppler echocardiography."
+    },
+    {
+      id: "CCE-004", topic: "Myocardial strain",
+      stem: "Which echocardiographic parameter is considered a more robust and sensitive marker of intrinsic myocardial deformation than left ventricular ejection fraction?",
+      choices: [
+        "Left ventricular ejection fraction (LVEF)",
+        "Stroke volume (SV)",
+        "Global longitudinal strain (GLS)",
+        "Mitral annular plane systolic excursion (MAPSE)"
+      ],
+      answer: "C",
+      explanation: [
+        "Global longitudinal strain measures the percentage shortening of the myocardium along its long axis using speckle tracking. Longitudinal subendocardial fibers are often affected first, so GLS can detect dysfunction (for example, chemotherapy cardiotoxicity or septic cardiomyopathy) before EF falls.",
+        "EF and stroke volume are strongly load dependent. MAPSE also reflects longitudinal function but is a single-point displacement measurement that is angle dependent and less reproducible than GLS. Normal GLS is roughly -18% or more negative, with some variation between vendors."
+      ],
+      objective: "GLS detects subclinical LV dysfunction earlier and more reproducibly than LVEF.",
+      refs: "ASE/EACVI chamber quantification and strain standardization documents."
+    },
+    {
+      id: "CCE-005", topic: "Contrast echo",
+      stem: "What is the primary indication for using an ultrasound enhancing agent (contrast) during transthoracic echocardiography to assess left ventricular function?",
+      choices: [
+        "To measure pulmonary artery pressures",
+        "When two or more contiguous LV segments are not visualized in apical views",
+        "To assess for aortic regurgitation",
+        "To enhance the color Doppler signal of the mitral valve"
+      ],
+      answer: "B",
+      explanation: [
+        "ASE guidelines recommend an ultrasound enhancing agent when two or more contiguous LV segments cannot be adequately seen. Contrast opacifies the LV cavity, sharpens endocardial border definition, and improves the accuracy of volumes, EF, regional wall motion assessment, and detection of LV thrombus or apical pathology.",
+        "Pulmonary pressure estimation is improved with agitated saline, which strengthens a weak tricuspid regurgitation signal. Contrast is not used to grade aortic regurgitation or to enhance mitral color Doppler."
+      ],
+      objective: "Use an ultrasound enhancing agent when 2 or more contiguous LV segments are not visualized.",
+      refs: "ASE guidelines update on clinical use of ultrasound enhancing agents. 2018."
+    },
+    {
+      id: "CCE-006", topic: "LV systolic function",
+      stem: "In the apical 4-chamber view, the mitral annular plane systolic excursion (MAPSE) measures 6 mm. This finding is most consistent with:",
+      choices: [
+        "Normal LV systolic function",
+        "LVEF < 50%",
+        "Severe diastolic dysfunction with preserved EF",
+        "Hypertrophic cardiomyopathy"
+      ],
+      answer: "B",
+      explanation: [
+        "MAPSE measures how far the mitral annulus moves toward the apex during systole and reflects longitudinal LV function. A MAPSE below about 8 mm is associated with an LVEF below 50%, while values of 10 mm or more usually indicate preserved systolic function.",
+        "MAPSE is quick, needs only M-mode, and is useful when endocardial borders are hard to trace, making it practical in the ICU."
+      ],
+      objective: "MAPSE < 8 mm suggests reduced LVEF; MAPSE ≥ 10 mm generally indicates preserved function.",
+      refs: "Matos J, et al. MAPSE as a surrogate for LV systolic function. J Am Soc Echocardiogr. 2012."
+    },
+    {
+      id: "CCE-007", topic: "RV / septum",
+      stem: "In the parasternal short axis view, the interventricular septum flattens to create a \"D-shaped\" left ventricle. Which condition causes this septal flattening specifically during systole?",
+      choices: [
+        "RV volume overload",
+        "RV pressure overload",
+        "LV volume overload",
+        "Cardiac tamponade"
+      ],
+      answer: "B",
+      explanation: [
+        "With RV pressure overload (for example, acute PE or pulmonary hypertension), the RV pressure approaches or exceeds LV pressure in systole, pushing the septum toward the LV. Flattening persists throughout the cycle and is most pronounced at end-systole.",
+        "RV volume overload (for example, ASD or severe tricuspid regurgitation) flattens the septum mainly in diastole, when RV filling is greatest, and the LV regains a round shape at end-systole. Timing the flattening against the ECG or with M-mode separates the two."
+      ],
+      objective: "Systolic (end-systolic) septal flattening = RV pressure overload. Diastolic flattening = RV volume overload.",
+      refs: "Ryan T, et al. An echocardiographic index for separation of RV volume and pressure overload. J Am Coll Cardiol. 1985."
+    },
+    {
+      id: "CCE-008", topic: "Pericardial disease",
+      stem: "A patient has a large pericardial effusion. Which echocardiographic finding is most concerning for severe cardiac tamponade?",
+      choices: [
+        "Right ventricular (RV) collapse in diastole",
+        "Respiratory variation in mitral inflow velocity (> 25%)",
+        "Pleural effusion",
+        "Increased aortic VTI"
+      ],
+      answer: "A",
+      explanation: [
+        "RV diastolic collapse occurs when pericardial pressure exceeds RV pressure during diastole, the period when the RV should be filling. It is highly specific for tamponade physiology and indicates more advanced hemodynamic compromise than right atrial systolic collapse, which is an earlier and more sensitive sign.",
+        "Exaggerated respiratory variation in mitral inflow (> 25%) supports tamponade physiology but is less specific and can occur with large intrathoracic pressure swings. A pleural effusion is not a sign of tamponade, and aortic VTI falls rather than rises as stroke volume drops. Tamponade remains a clinical diagnosis supported by these findings."
+      ],
+      objective: "RV diastolic collapse is the most specific chamber collapse sign of tamponade; RA systolic collapse is earlier and more sensitive.",
+      refs: "ASE guidelines for multimodality imaging of pericardial disease. 2013."
+    },
+    {
+      id: "CCE-009", topic: "Hemodynamics",
+      stem: "A hypotensive patient has an LVOT VTI of 12 cm, an LVOT diameter of 2.0 cm, and a heart rate of 90 beats per minute. This hemodynamic profile is most consistent with:",
+      choices: [
+        "High cardiac output state (sepsis)",
+        "Normal cardiac output",
+        "Cardiogenic shock",
+        "Hyperdynamic LV"
+      ],
+      answer: "C",
+      explanation: [
+        "Stroke volume = 3.14 cm² x 12 cm = 37.7 mL. Cardiac output = 37.7 mL x 90 beats per minute = about 3.4 L/min. An LVOT VTI below about 18 cm suggests a low stroke volume, and the heart rate is rising to compensate.",
+        "In a hypotensive patient, this low output profile fits cardiogenic shock. Hyperdynamic septic physiology typically shows a high VTI and high output. Clinical context still matters, since severe hypovolemia and obstructive shock can also lower the VTI."
+      ],
+      objective: "LVOT VTI < 18 cm suggests low stroke volume. CO = 0.785 x D² x VTI x HR.",
+      refs: "Blanco P. Rationale for using the velocity time integral in critical care. Ultrasound J. 2020."
+    },
+    {
+      id: "CCE-010", topic: "Stroke volume",
+      stem: "Which technical standard is recommended to minimize error when measuring the LVOT diameter for stroke volume calculation?",
+      choices: [
+        "Measure in the apical 5-chamber view at end-diastole",
+        "Measure in the parasternal long axis (PLAX) view, inner edge to inner edge, during mid-systole",
+        "Measure in the parasternal long axis (PLAX) view, leading edge to leading edge, during end-diastole",
+        "Measure in the parasternal short axis view at the aortic valve level"
+      ],
+      answer: "B",
+      explanation: [
+        "Current ASE recommendations measure the LVOT in a zoomed PLAX view, inner edge to inner edge, in mid-systole when the outflow tract is fully open, at the same level where the pulsed wave Doppler sample is placed for the VTI.",
+        "The PLAX view uses axial resolution, which is sharper than the lateral resolution of apical views. Precision matters because the radius is squared: measuring 2.1 cm instead of 2.0 cm increases the calculated stroke volume by about 10%."
+      ],
+      objective: "LVOT diameter: zoomed PLAX, mid-systole, inner edge to inner edge, at the level of the PW sample volume.",
+      refs: "Lang RM, et al. Chamber quantification. 2015; Baumgartner H, et al. Aortic stenosis recommendations. 2017."
+    },
+    {
+      id: "CCE-011", topic: "LV systolic function",
+      stem: "How does apical foreshortening of the left ventricle affect volume calculations using the biplane method of disks?",
+      choices: [
+        "It underestimates LV volumes",
+        "It overestimates LV volumes",
+        "It has no effect on EF",
+        "It causes the LV to appear more spherical"
+      ],
+      answer: "A",
+      explanation: [
+        "A foreshortened view cuts through the LV off its true long axis, so the measured length is shorter than the real ventricle and both end-diastolic and end-systolic volumes are underestimated. EF can also be misestimated, often overestimated, because the apex is excluded from the tracing.",
+        "Clues to foreshortening include a short, rounded apex that appears to contract vigorously. Moving the transducer one rib space lower and more lateral usually reveals the true apex."
+      ],
+      objective: "Apical foreshortening underestimates LV volumes; aim for the longest LV length in apical views.",
+      refs: "Lang RM, et al. Chamber quantification. J Am Soc Echocardiogr. 2015."
+    },
+    {
+      id: "CCE-012", topic: "Hemodynamics",
+      stem: "When measuring LVOT VTI in a patient with atrial fibrillation, how should you ensure accuracy?",
+      choices: [
+        "Measure only the beat following a long R-R interval",
+        "Measure only the beat following a short R-R interval",
+        "Average at least 5 consecutive beats",
+        "Use the beat with the highest velocity"
+      ],
+      answer: "C",
+      explanation: [
+        "Beat-to-beat filling varies in atrial fibrillation, so any single beat misrepresents the average stroke volume. ASE recommends averaging multiple consecutive beats, at least 5 and ideally more, for Doppler measurements in irregular rhythms.",
+        "Beats after a long R-R interval have more filling time and overestimate stroke volume, while beats after a short interval underestimate it. An alternative is the index beat method, which uses a beat whose two preceding R-R intervals are similar."
+      ],
+      objective: "In atrial fibrillation, average at least 5 consecutive beats (or use an index beat) for VTI measurements.",
+      refs: "ASE recommendations for quantification of Doppler echocardiography."
+    },
+    {
+      id: "CCE-013", topic: "Lung ultrasound",
+      stem: "On lung ultrasound M-mode, the normal granular pattern below the pleural line is replaced by horizontal parallel lines, as shown. This finding is known as the:",
+      image: "https://docs.google.com/forms-images-rt/ANbbkiixu5jLnPaaTYwdeME0dbozWXGvVW-WtxvOgtNEZGVkdJAWK-Xof9Ks85zpOQkxgYDXSwXd-pIWCZmltYJ7w6B7Cj-tuk5N2oMF4K-x3Afgiuj19eJmeZw5XPfo627tEE786oHfYDbAz44oQdP4ZvRMIppJDLnfVydfiFjPTKxIlwnJOLMXSwe4XhJsDl8FK8N2rKF0rmGukW0CXeKHZI4wEs2x_NZZdKIKVws=w692",
+      choices: [
+        "Seashore sign",
+        "Barcode (stratosphere) sign",
+        "Curtain sign",
+        "Spine sign"
+      ],
+      answer: "B",
+      explanation: [
+        "The barcode or stratosphere sign means there is no lung sliding: horizontal lines continue uninterrupted above and below the pleural line. It raises concern for pneumothorax, and finding a lung point (where sliding and non-sliding alternate) confirms it.",
+        "Normal lung sliding produces the seashore sign: horizontal \"waves\" above the pleural line and a granular \"sand\" pattern below. The curtain sign is normal aerated lung moving across the costophrenic angle, and the spine sign (thoracic spine visible above the diaphragm) suggests effusion or consolidation. Absent sliding is not specific; it is also seen with mainstem intubation, pleurodesis, and apnea."
+      ],
+      objective: "Barcode (stratosphere) sign = absent lung sliding. A lung point confirms pneumothorax.",
+      refs: "Volpicelli G, et al. International evidence-based recommendations for point-of-care lung ultrasound. Intensive Care Med. 2012."
+    },
+    {
+      id: "CCE-014", topic: "Pulmonary hypertension",
+      stem: "M-mode through the pulmonic valve in a patient with pulmonary hypertension shows a mid-systolic notch (partial closing motion), as shown. This finding is commonly called:",
+      image: "https://docs.google.com/forms-images-rt/ANbbkiilCuqKr19NSiveDekKqAo_rNiNJWdFVcBDSSYocfuzuZ51pvy9V3MBqYiKFMfpMESJFJb3FflIBDKzxtt4YdNNiEo5Xzow6OV2QqmT-sJzxBROzhq9Lx-Iuh8TMGflqm5ZgfZhEeKctOFPFlKrjVVnjfLmwZPdl8-JCFx1lpyFoESaW7oXt9zH6MFhWGjLEVgitkOPrL-JnaNCxUGOMxBXgI4emGDcMKD2v9M=w960",
+      choices: [
+        "The \"flying W\" sign",
+        "The \"D-sign\"",
+        "McConnell's sign",
+        "The 60/60 sign"
+      ],
+      answer: "A",
+      explanation: [
+        "In pulmonary hypertension, high pulmonary vascular resistance causes early wave reflection that partially closes the pulmonic valve in mid-systole. On M-mode, the posterior leaflet tracing forms a \"W\" shape. The same physiology produces mid-systolic notching on the RVOT pulsed wave Doppler envelope.",
+        "The D-sign describes septal flattening from RV overload. McConnell's sign (RV free wall hypokinesis with apical sparing) and the 60/60 sign (pulmonary acceleration time < 60 ms with a TR gradient < 60 mmHg) are associated with acute pulmonary embolism."
+      ],
+      objective: "Mid-systolic notching of the pulmonic valve (flying W) or RVOT Doppler envelope indicates elevated pulmonary vascular resistance.",
+      refs: "Rudski LG, et al. Guidelines for echocardiographic assessment of the right heart. J Am Soc Echocardiogr. 2010."
+    }
+  ]
+};
+</script>
+
+<script>
+/* ===================== QUIZ ENGINE (no edits needed) ===================== */
+(function(){
+const Q = QUIZ.questions, N = Q.length, L = "ABCDEFGH";
+const KEY = "ppq_" + QUIZ.id;
+const app = document.getElementById("app");
+const store = {
+  get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){} }
+};
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const logo = () => QUIZ.logo ? `<a class="logo" href="${esc(QUIZ.logoLink || "#")}" target="_blank" rel="noopener" title="Pulmonary POCUS"><img src="${esc(QUIZ.logo)}" alt="Pulmonary POCUS logo"></a>` : "";
+const ansIdx = q =>L.indexOf(String(q.answer).toUpperCase());
+const fmt = s => { s = Math.max(0, Math.round(s)); const h = Math.floor(s/3600), m = Math.floor(s%3600/60), x = s%60;
+  return (h ? h + ":" + String(m).padStart(2,"0") : m) + ":" + String(x).padStart(2,"0"); };
+
+let S = null;      // active block
+let V = null;      // what the exam screen is showing (S, or a review context)
+let mode = "tutor", tick = null, lastAttempt = null;
+
+const history = () => store.get(KEY + "_hist") || [];
+
+function score(a){
+  let c = 0, w = 0, o = 0;
+  Q.forEach((q,i) => { if (a.ans[i] == null) o++; else if (a.ans[i] === ansIdx(q)) c++; else w++; });
+  return { c, w, o, pct: Math.round(c / N * 100) };
+}
+
+/* ---------- media ---------- */
+function clip(src){
+  const yt = src.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/);
+  if (yt) return `<div class="frame"><iframe src="https://www.youtube.com/embed/${yt[1]}?loop=1&playlist=${yt[1]}&rel=0&playsinline=1" title="Question video" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div><a class="refs" href="https://www.youtube.com/watch?v=${yt[1]}" target="_blank" rel="noopener">Video not playing? Watch on YouTube</a>`;
+  const vm = src.match(/vimeo\.com\/(\d+)/);
+  if (vm) return `<div class="frame"><iframe src="https://player.vimeo.com/video/${vm[1]}?loop=1" allowfullscreen></iframe></div>`;
+  if (/\.(mp4|webm|mov)(\?|$)/i.test(src)) return `<video src="${esc(src)}" autoplay muted loop playsinline controls></video>`;
+  return `<img src="${esc(src)}" alt="Question image" loading="lazy">`;
+}
+function media(...srcs){
+  const list = [].concat(...srcs.map(s => s || [])).filter(Boolean);
+  return list.length ? `<div class="media">${list.map(clip).join("")}</div>` : "";
+}
+
+/* ---------- start screen ---------- */
+function renderStart(){
+  stopTimer();
+  const inprog = store.get(KEY + "_cur"), h = history().slice().reverse(), name = store.get(KEY + "_name") || "";
+  app.innerHTML = `
+  <div class="page">
+    <div class="brand"><div><h1>${esc(QUIZ.title)}</h1><p>${esc(QUIZ.subtitle)}</p></div>${logo()}</div>
+    <div class="card">
+      <div class="field"><label for="nm">Your name (shown on your score report)</label><input id="nm" value="${esc(name)}" placeholder="Optional"></div>
+      <div class="modes">
+        <button class="mode ${mode==="tutor"?"on":""}" data-m="tutor"><b>Tutor mode</b><span>Untimed. See the answer and explanation after each question.</span></button>
+        <button class="mode ${mode==="timed"?"on":""}" data-m="timed"><b>Timed mode</b><span>${fmt(N*QUIZ.secondsPerQuestion)} for ${N} questions. Explanations at the end, like the real exam.</span></button>
+      </div>
+      <div class="actions">
+        <button class="btn" id="go">Start new block (${N} questions)</button>
+        ${inprog ? `<button class="btn ghost" id="resume">Resume block in progress (${inprog.mode}, item ${inprog.cur+1})</button>` : ""}
+      </div>
+    </div>
+    <div class="card solo">
+      <h2>Your previous attempts</h2>
+      ${h.length ? `<div class="scroll"><table><tr><th>Date</th><th>Mode</th><th>Score</th><th>Correct</th><th>Time</th><th></th></tr>
+        ${h.map(a => { const s = score(a); return `<tr><td>${new Date(a.date).toLocaleString([], {dateStyle:"medium", timeStyle:"short"})}</td><td>${a.mode}</td><td><b>${s.pct}%</b></td><td>${s.c}/${N}</td><td>${fmt(a.elapsed)}</td>
+          <td><button class="btn sm ghost" data-res="${a.id}">Results</button></td></tr>`; }).join("")}</table></div>
+        <div class="actions"><button class="btn sm ghost" id="clr">Clear history</button></div>`
+      : `<p class="muted">No attempts yet. Scores and question reviews are saved in this browser on this device.</p>`}
+    </div>
+  </div>`;
+  app.querySelectorAll(".mode").forEach(b => b.onclick = () => { mode = b.dataset.m; saveName(); renderStart(); });
+  app.querySelector("#go").onclick = () => { saveName(); start(); };
+  const r = app.querySelector("#resume"); if (r) r.onclick = () => { S = inprog; V = S; startTimer(); renderExam(); };
+  app.querySelectorAll("[data-res]").forEach(b => b.onclick = () => renderResults(history().find(a => a.id == b.dataset.res)));
+  const c = app.querySelector("#clr"); if (c) c.onclick = () => confirmBox("Clear all saved attempts?", "This removes your score history from this device.", "Clear", () => { store.del(KEY + "_hist"); renderStart(); });
+}
+function saveName(){ const el = app.querySelector("#nm"); if (el) store.set(KEY + "_name", el.value.trim()); }
+
+function start(){
+  S = { id: Date.now(), name: store.get(KEY + "_name") || "", mode, cur: 0,
+        ans: Array(N).fill(null), sub: Array(N).fill(false), flag: Array(N).fill(false), strike: Q.map(() => []),
+        time: Array(N).fill(0), elapsed: 0, limit: mode === "timed" ? N * QUIZ.secondsPerQuestion : 0, date: Date.now(), nav: false };
+  V = S; save(); startTimer(); renderExam();
+}
+function save(){ if (S) store.set(KEY + "_cur", S); }
+
+/* ---------- timer ---------- */
+function startTimer(){
+  stopTimer();
+  tick = setInterval(() => {
+    if (!S || V !== S) return;
+    S.elapsed++; S.time[S.cur]++;
+    if (S.elapsed % 5 === 0) save();
+    const t = document.getElementById("timer");
+    if (S.mode === "timed"){
+      const left = S.limit - S.elapsed;
+      if (t){ t.textContent = "⏱ " + fmt(left); t.classList.toggle("low", left <= 60); }
+      if (left <= 0){ toast("Time is up"); finish(); }
+    } else if (t) t.textContent = "⏱ " + fmt(S.elapsed);
+  }, 1000);
+}
+function stopTimer(){ if (tick) clearInterval(tick); tick = null; }
+
+/* ---------- exam / review screen ---------- */
+function visible(){
+  const all = [...Array(N).keys()];
+  if (!V.review || V.filter === "all") return all;
+  if (V.filter === "flagged") return all.filter(i => V.flag[i]);
+  return all.filter(i => V.ans[i] !== ansIdx(Q[i]));
+}
+function revealed(i){ return V.review || (V.mode === "tutor" && V.sub[i]); }
+
+function renderExam(){
+  const i = V.cur, q = Q[i], rev = revealed(i), a = V.ans[i], ci = ansIdx(q);
+  const vis = visible(), pos = vis.indexOf(i);
+  const timerTxt = V.review ? "Review" : "⏱ " + fmt(V.mode === "timed" ? V.limit - V.elapsed : V.elapsed);
+  const strike = (V.strike && V.strike[i]) || [];
+  let verdict = "";
+  if (rev){
+    if (a == null) verdict = `<div class="verdict om">Omitted. The correct answer is ${L[ci]}.</div>`;
+    else if (a === ci) verdict = `<div class="verdict ok">Correct</div>`;
+    else verdict = `<div class="verdict bad">Incorrect. The correct answer is ${L[ci]}.</div>`;
+  }
+  app.innerHTML = `
+  <div class="shell">
+    <header class="top">
+      <div class="l">
+        <button class="ic" id="navbtn" aria-label="Question list">☰</button>
+        <div><div class="item">Item ${i+1} of ${N}</div><div class="qid">Question Id: ${esc(q.id || i+1)}</div></div>
+        ${V.review ? "" : `<button class="flagbtn ${V.flag[i]?"on":""}" id="flag">⚑ ${V.flag[i]?"Marked":"Mark"}</button>`}
+      </div>
+      <div class="c">
+        <button class="ic" id="prev" ${pos<=0?"disabled":""} aria-label="Previous">◀</button>
+        <button class="ic" id="next" ${pos>=vis.length-1?"disabled":""} aria-label="Next">▶</button>
+      </div>
+      <div class="r"><span class="timer" id="timer">${timerTxt}</span>${logo()}</div>
+    </header>
+    <div class="body">
+      <aside class="nav ${V.nav?"open":""}" id="nav">
+        ${vis.map(k => {
+          const cls = ["n"]; if (k === i) cls.push("cur"); if (V.ans[k] != null) cls.push("ans");
+          if (revealed(k)){ cls.push("rv", V.ans[k] === ansIdx(Q[k]) ? "ok" : "bad"); }
+          return `<button class="${cls.join(" ")}" data-go="${k}">${k+1}${V.flag[k]?' <span class="fl">⚑</span>':""}</button>`;
+        }).join("")}
+      </aside>
+      <main class="main" id="main"><div class="qwrap">
+        <p class="stem">${esc(q.stem)}</p>
+        ${media(q.image, q.video)}
+        <div class="choices">
+          ${q.choices.map((c,k) => {
+            const cls = ["ch"];
+            if (rev){ if (k === ci) cls.push("ok"); else if (k === a) cls.push("bad"); }
+            else if (k === a) cls.push("sel");
+            if (!rev && strike.includes(k)) cls.push("strike");
+            const mark = rev ? (k === ci ? "✓" : k === a ? "✗" : "") : "";
+            return `<button class="${cls.join(" ")}" data-k="${k}" ${rev?"disabled":""}>
+              ${rev ? `<span class="mk">${mark}</span>` : `<span class="radio"></span>`}
+              <span class="txt"><b>${L[k]}.</b> ${esc(c)}</span></button>`;
+          }).join("")}
+        </div>
+        ${!rev ? `<p class="hint">Tip: right-click (or long-press) a choice to cross it out. Keys A to ${L[q.choices.length-1]} select, arrow keys move.</p>` : ""}
+        ${!rev && V.mode === "tutor" ? `<button class="btn" id="submit" ${a==null?"disabled":""}>Submit</button>` : ""}
+        ${rev ? `<div class="exp">${verdict}
+          <h3>Explanation</h3>
+          ${[].concat(q.explanation || []).map(p => `<p>${esc(p)}</p>`).join("")}
+          ${media(q.explainImage, q.explainVideo)}
+          ${q.objective ? `<div class="obj"><b>Educational objective</b>${esc(q.objective)}</div>` : ""}
+          ${q.refs ? `<p class="refs">References: ${esc(q.refs)}</p>` : ""}
+          ${V.review && V.time ? `<p class="refs">Time spent on this question: ${fmt(V.time[i])}</p>` : ""}
+        </div>` : ""}
+      </div></main>
+    </div>
+    <footer class="bot">
+      <span class="lab hidesm">${V.review ? "Reviewing: " + ({all:"all questions", incorrect:"incorrect and omitted", flagged:"marked questions"})[V.filter] : (V.mode === "tutor" ? "Tutor mode" : "Timed mode")}</span>
+      ${V.review ? `<button class="btn ghost sm" id="back">Back to results</button>` : `<button class="btn red sm" id="end">End block</button>`}
+    </footer>
+  </div>`;
+
+  const $ = s => app.querySelector(s);
+  $("#navbtn").onclick = () => { V.nav = !V.nav; $("#nav").classList.toggle("open", V.nav); };
+  $("#prev").onclick = () => go(vis[pos-1]);
+  $("#next").onclick = () => go(vis[pos+1]);
+  app.querySelectorAll("[data-go]").forEach(b => b.onclick = () => { if (window.innerWidth <= 760) V.nav = false; go(+b.dataset.go); });
+  app.querySelectorAll(".ch").forEach(b => {
+    b.onclick = () => { if (rev) return; V.ans[i] = +b.dataset.k; V.strike[i] = strike.filter(x => x !== +b.dataset.k); save(); renderExam(); };
+    b.oncontextmenu = e => { if (rev) return; e.preventDefault(); const k = +b.dataset.k;
+      V.strike[i] = strike.includes(k) ? strike.filter(x => x !== k) : strike.concat(k);
+      if (V.ans[i] === k) V.ans[i] = null; save(); renderExam(); };
+  });
+  if ($("#flag")) $("#flag").onclick = () => { V.flag[i] = !V.flag[i]; save(); renderExam(); };
+  if ($("#submit")) $("#submit").onclick = () => { V.sub[i] = true; save(); renderExam(); };
+  if ($("#end")) $("#end").onclick = () => {
+    const left = V.ans.filter(x => x == null).length;
+    confirmBox("End this block?", left ? `You have ${left} unanswered question${left>1?"s":""}. They will be scored as omitted.` : "All questions are answered.", "End block", finish);
+  };
+  if ($("#back")) $("#back").onclick = () => renderResults(V.attempt);
+}
+function go(k){ if (k == null) return; V.cur = k; save(); renderExam(); const m = document.getElementById("main"); if (m) m.scrollTop = 0; }
+
+document.addEventListener("keydown", e => {
+  if (!V || !document.getElementById("main") || document.querySelector(".modalbg")) return;
+  if (e.target.tagName === "INPUT") return;
+  const vis = visible(), pos = vis.indexOf(V.cur);
+  if (e.key === "ArrowRight" || e.key === "ArrowDown"){ e.preventDefault(); go(vis[pos+1]); }
+  else if (e.key === "ArrowLeft" || e.key === "ArrowUp"){ e.preventDefault(); go(vis[pos-1]); }
+  else if (!revealed(V.cur)){
+    const k = L.indexOf(e.key.toUpperCase());
+    if (k >= 0 && k < Q[V.cur].choices.length){ V.ans[V.cur] = k; save(); renderExam(); }
+    else if (e.key === "Enter" && V.mode === "tutor" && V.ans[V.cur] != null){ V.sub[V.cur] = true; save(); renderExam(); }
+  }
+});
+
+/* ---------- finish + results ---------- */
+function finish(){
+  stopTimer();
+  const a = { id: S.id, date: S.date, name: S.name, mode: S.mode, ans: S.ans, flag: S.flag, time: S.time, elapsed: S.elapsed };
+  const h = history().filter(x => x.id !== a.id); h.push(a); store.set(KEY + "_hist", h);
+  store.del(KEY + "_cur"); S = null;
+  closeModal(); renderResults(a);
+}
+
+function renderResults(a){
+  if (!a) return renderStart();
+  stopTimer(); V = null; lastAttempt = a;
+  const s = score(a), answered = N - s.o;
+  app.innerHTML = `
+  <div class="page">
+    <div class="brand"><div><h1>Score report: ${esc(QUIZ.title)}</h1>
+      <p>${a.name ? esc(a.name) + " | " : ""}${new Date(a.date).toLocaleString([], {dateStyle:"medium", timeStyle:"short"})} | ${a.mode === "tutor" ? "Tutor" : "Timed"} mode</p></div>${logo()}</div>
+    <div class="card">
+      <div class="scorebox">
+        <div><div class="big">${s.pct}%</div><div class="muted">Your score</div></div>
+        <div class="stats">
+          <div class="stat"><b style="color:var(--ok)">${s.c}</b><span>Correct</span></div>
+          <div class="stat"><b style="color:var(--bad)">${s.w}</b><span>Incorrect</span></div>
+          <div class="stat"><b>${s.o}</b><span>Omitted</span></div>
+          <div class="stat"><b>${fmt(a.elapsed)}</b><span>Total time</span></div>
+          <div class="stat"><b>${fmt(answered ? a.elapsed / N : 0)}</b><span>Avg per question</span></div>
+        </div>
+      </div>
+      <div class="meter"><i style="width:${s.c/N*100}%;background:var(--ok)"></i><i style="width:${s.w/N*100}%;background:var(--bad)"></i><i style="width:${s.o/N*100}%;background:#c3cad4"></i></div>
+      <div class="actions noprint">
+        <button class="btn" data-rv="all">Review all questions</button>
+        <button class="btn ghost" data-rv="incorrect">Review incorrect (${s.w + s.o})</button>
+        <button class="btn ghost" data-rv="flagged">Review marked (${a.flag.filter(Boolean).length})</button>
+        <button class="btn ghost" id="print">Print / save PDF</button>
+        <button class="btn ghost" id="home">Back to start</button>
+      </div>
+    </div>
+    <div class="card solo">
+      <h2>Question breakdown</h2>
+      <div class="scroll"><table>
+        <tr><th>#</th><th>Topic</th><th>Your answer</th><th>Correct</th><th>Result</th><th>Time</th></tr>
+        ${Q.map((q,i) => { const u = a.ans[i], ok = u === ansIdx(q);
+          return `<tr class="click" data-q="${i}"><td>${i+1}${a.flag[i]?' <span style="color:var(--flag)">⚑</span>':""}</td><td>${esc(q.topic || q.id)}</td>
+            <td>${u == null ? "None" : L[u]}</td><td>${L[ansIdx(q)]}</td>
+            <td>${u == null ? '<span class="pill om">Omitted</span>' : ok ? '<span class="pill ok">Correct</span>' : '<span class="pill bad">Incorrect</span>'}</td>
+            <td>${fmt(a.time[i])}</td></tr>`; }).join("")}
+      </table></div>
+      <p class="muted noprint">Tap any row to review that question with its explanation.</p>
+    </div>
+  </div>`;
+  app.querySelectorAll("[data-rv]").forEach(b => b.onclick = () => openReview(a, b.dataset.rv, null));
+  app.querySelectorAll("[data-q]").forEach(r => r.onclick = () => openReview(a, "all", +r.dataset.q));
+  app.querySelector("#print").onclick = () => window.print();
+  app.querySelector("#home").onclick = renderStart;
+  window.scrollTo(0, 0);
+}
+
+function openReview(a, filter, at){
+  V = { review: true, attempt: a, filter, mode: a.mode, ans: a.ans, flag: a.flag, time: a.time, sub: Array(N).fill(true), strike: Q.map(() => []), cur: 0, nav: false };
+  const vis = visible();
+  if (!vis.length){ V = null; toast(filter === "flagged" ? "No marked questions in this attempt" : "No incorrect questions. Nice work!"); return; }
+  V.cur = at != null ? at : vis[0];
+  renderExam();
+}
+
+/* ---------- helpers ---------- */
+function toast(msg){ const t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2200); }
+function closeModal(){ const m = document.querySelector(".modalbg"); if (m) m.remove(); }
+function confirmBox(title, body, okText, onOk){
+  closeModal();
+  const d = document.createElement("div"); d.className = "modalbg";
+  d.innerHTML = `<div class="modal"><h3>${esc(title)}</h3><p class="muted">${esc(body)}</p>
+    <div class="actions"><button class="btn ghost" id="mc">Cancel</button><button class="btn red" id="mo">${esc(okText)}</button></div></div>`;
+  document.body.appendChild(d);
+  d.querySelector("#mc").onclick = closeModal;
+  d.querySelector("#mo").onclick = () => { closeModal(); onOk(); };
+  d.onclick = e => { if (e.target === d) closeModal(); };
+}
+
+renderStart();
+})();
+</script>
+</body>
+</html>
